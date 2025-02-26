@@ -643,23 +643,42 @@ const CalendarTextGenerator = () => {
     
     // スクロール位置を調整してテキストエリアを表示
     if (textAreaRef.current) {
+      // iOSの場合は少し遅延させる
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const delay = isIOS ? 500 : 300;
+      
       setTimeout(() => {
-        textAreaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+        // テキストエリアの位置までスクロール
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+        
+        // テキストエリアを画面の中央に表示
+        textAreaRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, delay);
     }
   };
   
   return (
-    <div className="flex justify-center bg-gray-50 w-full" style={{ minHeight: '100vh', minHeight: 'calc(var(--vh, 1vh) * 100)', overscrollBehavior: 'auto' }}>
+    <div className="flex justify-center bg-gray-50 w-full" style={{ 
+      minHeight: '100vh', 
+      minHeight: 'calc(var(--vh, 1vh) * 100)', 
+      overscrollBehavior: 'auto',
+      position: 'relative'
+    }}>
       <div 
         className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
         style={{ 
-          height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '100vh', 
-          height: isKeyboardVisible ? `calc(var(--vh, 1vh) * 100 - ${keyboardHeight}px)` : 'calc(var(--vh, 1vh) * 100)',
+          height: isKeyboardVisible ? 'auto' : '100vh', 
+          height: isKeyboardVisible ? 'auto' : 'calc(var(--vh, 1vh) * 100)',
           position: 'relative',
           maxWidth: '400px',
           width: '100%',
-          overflow: 'hidden'
+          overflow: isKeyboardVisible ? 'visible' : 'hidden'
         }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -708,8 +727,11 @@ const CalendarTextGenerator = () => {
           <div></div> {/* 右側のスペース確保用 */}
         </div>
         
-        {/* カレンダーグリッド - ヘッダー固定、本体スクロール */}
-        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden min-h-0">
+        {/* カレンダーグリッド - キーボード表示時は縮小 */}
+        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden min-h-0" style={{
+          maxHeight: isKeyboardVisible ? '40vh' : 'none',
+          transition: 'max-height 0.3s ease'
+        }}>
           {/* 固定ヘッダー部分 */}
           <table className="w-full border-collapse table-fixed" style={{ margin: '8px 0 4px 0' }}>
             <thead>
@@ -814,9 +836,18 @@ const CalendarTextGenerator = () => {
         </div>
         
         {/* 下部固定エリア - 固定高さ */}
-        <div className="bg-white border-t border-gray-200 flex flex-col">
+        <div className="bg-white border-t border-gray-200 flex flex-col" style={{
+          position: isKeyboardVisible ? 'sticky' : 'relative',
+          bottom: 0,
+          zIndex: 10,
+          backgroundColor: 'white'
+        }}>
           {/* 選択した時間テキスト表示 */}
-          <div className="bg-white" style={{ height: '75px' }}>
+          <div className="bg-white" style={{ 
+            height: '75px',
+            position: isKeyboardVisible ? 'sticky' : 'relative',
+            bottom: 0
+          }}>
             <div 
               ref={textAreaRef}
               className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
@@ -826,8 +857,19 @@ const CalendarTextGenerator = () => {
               onBlur={(e) => {
                 setIsTextAreaFocused(false);
                 setGeneratedText(e.currentTarget.textContent);
+                
+                // フォーカスが外れたらスクロールを元に戻す
+                setTimeout(() => {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                  });
+                }, 100);
               }}
-              style={{ fontSize: '16px' }} // 16px以上のフォントサイズでiOSのズームを防止
+              style={{ 
+                fontSize: '16px', // 16px以上のフォントサイズでiOSのズームを防止
+                backgroundColor: isTextAreaFocused ? '#f8f8f8' : 'white' // フォーカス時に背景色を変更
+              }}
             >
               {generatedText ? (
                 generatedText.split('\n').map((line, index) => (
