@@ -256,22 +256,20 @@ const CalendarTextGenerator = () => {
   };
   
   // タッチ操作のためのイベントハンドラー
-  const handleTouchStart = (dayIndex, timeIndex) => {
-    handleCellMouseDown(dayIndex, timeIndex);
-  };
-  
   const handleTouchMove = (e) => {
-    // 長押し状態でなければスクロールを許可（ここが重要）
+    // 長押し状態でなければスクロールを許可
     if (!isLongPress) return;
     
+    // 長押しドラッグ中のみスクロールを防止
     if (isDragging) {
-      e.preventDefault(); // 長押しドラッグ中のみスクロールを防止
-      
+      // カレンダーグリッド内のタッチ移動のみ処理
       const touch = e.touches[0];
       const element = document.elementFromPoint(touch.clientX, touch.clientY);
       
-      // data属性からセルの位置情報を取得
+      // カレンダーグリッド内のセルかどうかを確認
       if (element && element.dataset.dayIndex !== undefined && element.dataset.timeIndex !== undefined) {
+        e.preventDefault(); // カレンダーグリッド内のみスクロールを防止
+        
         const dayIndex = parseInt(element.dataset.dayIndex);
         const timeIndex = parseInt(element.dataset.timeIndex);
         handleCellMouseEnter(dayIndex, timeIndex);
@@ -622,7 +620,7 @@ const CalendarTextGenerator = () => {
   }, []);
   
   return (
-    <div className="flex justify-center bg-gray-50 w-full" style={{ minHeight: '100vh', minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
+    <div className="flex justify-center bg-gray-50 w-full" style={{ minHeight: '100vh', minHeight: 'calc(var(--vh, 1vh) * 100)', overscrollBehavior: 'auto' }}>
       <div 
         className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
         style={{ height: '100vh', height: 'calc(var(--vh, 1vh) * 100)' }}
@@ -633,16 +631,27 @@ const CalendarTextGenerator = () => {
         {/* ヘッダー - 固定高さ */}
         <div className="bg-white p-2 flex justify-center items-center shadow-sm">
           <div className="flex items-center">
-            <div className="text-lg font-medium text-gray-500 flex items-center">
-              <svg width="40" height="24" viewBox="0 0 40 24">
-                <g>
-                  <rect x="2" y="4" width="4" height="16" rx="2" fill="#F087B3"/>
-                  <rect x="10" y="8" width="4" height="12" rx="2" fill="#FDAF69"/>
-                  <rect x="18" y="2" width="4" height="18" rx="2" fill="#85D2F0"/>
-                  <rect x="26" y="6" width="4" height="14" rx="2" fill="#9E9E9E"/>
-                </g>
+            <div className="text-lg font-medium flex items-center">
+              {/* SVGとして直接埋め込み */}
+              <svg width="120" height="40" viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg">
+                {/* ピンク色の棒グラフ要素 */}
+                <rect x="22" y="70" width="40" height="160" rx="20" fill="#D08B8C"/>
+                <rect x="115" y="30" width="40" height="200" rx="20" fill="#D08B8C"/>
+                <rect x="262" y="70" width="40" height="160" rx="20" fill="#D08B8C"/>
+                
+                {/* 黄色の棒グラフ要素 */}
+                <rect x="188" y="110" width="40" height="120" rx="20" fill="#E9B949"/>
+                
+                {/* MakeMeテキスト */}
+                <path d="M414 70L450 180L486 70H530L570 180L606 70H652L588 230H542L502 120L462 230H416L352 70H414Z" fill="#666666"/>
+                <path d="M670 230V70H716V190H796V230H670Z" fill="#666666"/>
+                <path d="M830 230V70H876V140H936V70H982V230H936V180H876V230H830Z" fill="#666666"/>
+                <path d="M1010 230V70H1056V190H1136V230H1010Z" fill="#666666"/>
+                
+                {/* メイクミークラウドテキスト */}
+                <text x="500" y="270" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" fill="#666666">メイクミークラウド</text>
               </svg>
-              <span className="ml-2 font-bold">カレンダー日程調整</span>
+              <span className="ml-2 font-bold text-gray-700">カレンダー日程調整</span>
             </div>
           </div>
         </div>
@@ -707,7 +716,10 @@ const CalendarTextGenerator = () => {
           {/* スクロール可能な本体部分 - 計算された高さを適用 */}
           <div 
             className="overflow-auto relative flex-1" 
-            style={{ WebkitOverflowScrolling: 'touch' }}
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'auto'
+            }}
           >
             {/* 現在時刻の線 */}
             {currentTimePosition >= 0 && (
@@ -756,7 +768,7 @@ const CalendarTextGenerator = () => {
                           onClick={() => handleCellClick(dayIndex, timeIndex)}
                           onMouseDown={() => handleCellMouseDown(dayIndex, timeIndex)}
                           onMouseEnter={() => isDragging && handleCellMouseEnter(dayIndex, timeIndex)}
-                          onTouchStart={() => handleTouchStart(dayIndex, timeIndex)}
+                          onTouchStart={() => handleTouchMove(e)}
                           data-day-index={dayIndex}
                           data-time-index={timeIndex}
                         >
