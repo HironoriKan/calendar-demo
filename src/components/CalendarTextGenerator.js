@@ -509,7 +509,10 @@ const CalendarTextGenerator = () => {
       <div 
         ref={popupRef}
         className="absolute top-10 left-0 bg-white shadow-lg rounded-lg z-50 p-2"
-        style={{ width: '300px' }}
+        style={{ 
+          width: '300px',
+          border: '1px solid #CB8585' // 1pxのボーダーを追加、色は#CB8585
+        }}
       >
         <div className="flex justify-between items-center mb-2">
           <button 
