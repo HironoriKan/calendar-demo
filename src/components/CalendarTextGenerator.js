@@ -6,8 +6,16 @@ const useViewportHeight = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setViewportHeight(window.innerHeight);
+      // モバイルブラウザでより正確な高さを取得
+      const vh = window.innerHeight;
+      setViewportHeight(vh);
+      
+      // CSS変数として設定（1vhの実際の値をピクセルで設定）
+      document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
     };
+
+    // 初期設定
+    handleResize();
 
     window.addEventListener('resize', handleResize);
     
@@ -15,10 +23,16 @@ const useViewportHeight = () => {
     window.addEventListener('orientationchange', () => {
       setTimeout(handleResize, 100);
     });
+    
+    // スクロール時にも更新（モバイルブラウザのアドレスバー表示/非表示対応）
+    window.addEventListener('scroll', () => {
+      setTimeout(handleResize, 100);
+    });
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
+      window.removeEventListener('scroll', handleResize);
     };
   }, []);
 
@@ -608,9 +622,10 @@ const CalendarTextGenerator = () => {
   }, []);
   
   return (
-    <div className="flex justify-center bg-gray-50 min-h-screen w-full">
+    <div className="flex justify-center bg-gray-50 w-full" style={{ minHeight: '100vh', minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
       <div 
-        className="flex flex-col bg-white w-full max-w-[400px] h-screen shadow-md" 
+        className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
+        style={{ height: '100vh', height: 'calc(var(--vh, 1vh) * 100)' }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseUp={handleMouseUp}
@@ -780,7 +795,7 @@ const CalendarTextGenerator = () => {
         </div>
         
         {/* 下部固定エリア - 固定高さ */}
-        <div className="bg-white border-t border-gray-200">
+        <div className="bg-white border-t border-gray-200 flex flex-col">
           {/* 選択した時間テキスト表示 */}
           <div className="bg-white" style={{ height: '75px' }}>
             <div 
