@@ -3,12 +3,18 @@ import React, { useState, useEffect, useRef } from 'react';
 // ビューポートの高さを取得するためのカスタムフック
 const useViewportHeight = () => {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       // モバイルブラウザでより正確な高さを取得
       const vh = window.innerHeight;
       setViewportHeight(vh);
+      
+      // キーボードが表示されているかどうかを判定
+      // 通常、キーボードが表示されると画面高さが大幅に減少する
+      const heightReduction = window.innerHeight < window.outerHeight * 0.75;
+      setIsKeyboardVisible(heightReduction);
       
       // CSS変数として設定（1vhの実際の値をピクセルで設定）
       document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
@@ -36,7 +42,7 @@ const useViewportHeight = () => {
     };
   }, []);
 
-  return viewportHeight;
+  return { viewportHeight, isKeyboardVisible };
 };
 
 const CalendarTextGenerator = () => {
@@ -79,8 +85,11 @@ const CalendarTextGenerator = () => {
   // 現在時刻の位置を計算するための状態
   const [currentTimePosition, setCurrentTimePosition] = useState(0);
   
-  // ビューポートの高さを取得
-  const viewportHeight = useViewportHeight();
+  // ビューポートの高さとキーボード表示状態を取得
+  const { viewportHeight, isKeyboardVisible } = useViewportHeight();
+  
+  // テキストエリアがフォーカスされているかどうか
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
   
   // カレンダーグリッドの高さを計算
   const calculateGridHeight = () => {
@@ -623,7 +632,17 @@ const CalendarTextGenerator = () => {
     <div className="flex justify-center bg-gray-50 w-full" style={{ minHeight: '100vh', minHeight: 'calc(var(--vh, 1vh) * 100)', overscrollBehavior: 'auto' }}>
       <div 
         className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
-        style={{ height: '100vh', height: 'calc(var(--vh, 1vh) * 100)' }}
+        style={{ 
+          height: '100vh', 
+          height: 'calc(var(--vh, 1vh) * 100)',
+          // キーボードが表示されている場合は固定高さを使用しない
+          position: isKeyboardVisible ? 'relative' : 'fixed',
+          top: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          maxWidth: '400px',
+          width: '100%'
+        }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseUp={handleMouseUp}
@@ -784,7 +803,11 @@ const CalendarTextGenerator = () => {
               className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
               contentEditable
               suppressContentEditableWarning={true}
-              onBlur={(e) => setGeneratedText(e.currentTarget.textContent)}
+              onFocus={() => setIsTextAreaFocused(true)}
+              onBlur={(e) => {
+                setIsTextAreaFocused(false);
+                setGeneratedText(e.currentTarget.textContent);
+              }}
             >
               {generatedText ? (
                 generatedText.split('\n').map((line, index) => (
@@ -798,8 +821,12 @@ const CalendarTextGenerator = () => {
             </div>
           </div>
           
-          {/* フッターボタン */}
-          <div className="bg-white p-1 flex justify-center items-center border-t border-gray-200">
+          {/* フッターボタン - キーボードが表示されている場合は非表示 */}
+          <div 
+            className={`bg-white p-1 flex justify-center items-center border-t border-gray-200 ${
+              isKeyboardVisible ? 'hidden' : 'block'
+            }`}
+          >
             <div className="flex space-x-3">
               <button 
                 onClick={resetSelection}
