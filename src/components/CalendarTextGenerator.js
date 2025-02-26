@@ -768,7 +768,7 @@ const CalendarTextGenerator = () => {
                           onClick={() => handleCellClick(dayIndex, timeIndex)}
                           onMouseDown={() => handleCellMouseDown(dayIndex, timeIndex)}
                           onMouseEnter={() => isDragging && handleCellMouseEnter(dayIndex, timeIndex)}
-                          onTouchStart={() => handleTouchMove(e)}
+                          onTouchStart={() => handleCellMouseDown(dayIndex, timeIndex)}
                           data-day-index={dayIndex}
                           data-time-index={timeIndex}
                         >
