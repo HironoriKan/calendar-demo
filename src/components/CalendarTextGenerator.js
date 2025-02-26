@@ -632,25 +632,12 @@ const CalendarTextGenerator = () => {
         <div className="bg-white p-2 flex justify-center items-center shadow-sm">
           <div className="flex items-center">
             <div className="text-lg font-medium flex items-center">
-              {/* SVGとして直接埋め込み */}
-              <svg width="120" height="40" viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg">
-                {/* ピンク色の棒グラフ要素 */}
-                <rect x="22" y="70" width="40" height="160" rx="20" fill="#D08B8C"/>
-                <rect x="115" y="30" width="40" height="200" rx="20" fill="#D08B8C"/>
-                <rect x="262" y="70" width="40" height="160" rx="20" fill="#D08B8C"/>
-                
-                {/* 黄色の棒グラフ要素 */}
-                <rect x="188" y="110" width="40" height="120" rx="20" fill="#E9B949"/>
-                
-                {/* MakeMeテキスト */}
-                <path d="M414 70L450 180L486 70H530L570 180L606 70H652L588 230H542L502 120L462 230H416L352 70H414Z" fill="#666666"/>
-                <path d="M670 230V70H716V190H796V230H670Z" fill="#666666"/>
-                <path d="M830 230V70H876V140H936V70H982V230H936V180H876V230H830Z" fill="#666666"/>
-                <path d="M1010 230V70H1056V190H1136V230H1010Z" fill="#666666"/>
-                
-                {/* メイクミークラウドテキスト */}
-                <text x="500" y="270" font-family="'Noto Sans JP', sans-serif" font-size="36" text-anchor="middle" fill="#666666">メイクミークラウド</text>
-              </svg>
+              {/* 画像として埋め込み */}
+              <img 
+                src="/makeme-logo.png" 
+                alt="MakeMeロゴ" 
+                className="h-10"
+              />
               <span className="ml-2 font-bold text-gray-700">カレンダー日程調整</span>
             </div>
           </div>
