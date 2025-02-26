@@ -595,6 +595,8 @@ const CalendarTextGenerator = () => {
                       key={colIndex} 
                       className={`text-center p-1 cursor-pointer ${
                         isCurrentMonth ? '' : 'text-gray-400'
+                      } ${
+                        isInSelectedWeek ? 'bg-red-100' : ''
                       }`}
                       onClick={() => {
                         setCurrentDate(dateObj);
@@ -604,11 +606,7 @@ const CalendarTextGenerator = () => {
                       <div className={`inline-block w-6 h-6 ${
                         isToday ? 'bg-red-400 text-white rounded-full flex items-center justify-center' : ''
                       }`}>
-                        <span className={`${
-                          isInSelectedWeek ? 'text-[#CB8585] font-bold' : ''
-                        }`}>
-                          {displayDay}
-                        </span>
+                        {displayDay}
                       </div>
                     </td>
                   );
