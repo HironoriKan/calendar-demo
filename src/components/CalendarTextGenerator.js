@@ -689,17 +689,19 @@ const CalendarTextGenerator = () => {
       minHeight: 'calc(var(--vh, 1vh) * 100)', 
       overscrollBehavior: 'auto',
       position: 'relative',
-      overflow: 'auto'
+      overflow: 'auto' // 全体のスクロールを許可
     }}>
       <div 
         className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
         style={{ 
+          // 固定高さを削除し、自動的に高さを調整
           height: 'auto',
+          minHeight: isKeyboardVisible ? 'auto' : '100vh', 
           minHeight: isKeyboardVisible ? 'auto' : 'calc(var(--vh, 1vh) * 100)',
           position: 'relative',
           maxWidth: '400px',
           width: '100%',
-          overflow: 'visible',
+          overflow: 'visible', // 内容がはみ出ても表示
           overscrollBehavior: 'auto'
         }}
         onTouchMove={handleTouchMove}
@@ -745,10 +747,9 @@ const CalendarTextGenerator = () => {
         </div>
         
         {/* カレンダーグリッド - 固定高さを削除 */}
-        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-visible min-h-0" style={{
-          maxHeight: isKeyboardVisible ? '40vh' : 'none',
-          transition: 'max-height 0.3s ease',
-          overflow: 'visible'
+        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden" style={{
+          // maxHeightを削除して自然な高さに
+          transition: 'max-height 0.3s ease'
         }}>
           {/* 固定ヘッダー部分 */}
           <table className="w-full border-collapse table-fixed" style={{ margin: '8px 0 4px 0' }}>
@@ -777,9 +778,9 @@ const CalendarTextGenerator = () => {
             </thead>
           </table>
           
-          {/* スクロール可能な本体部分 */}
+          {/* スクロール可能な本体部分 - 計算された高さを適用 */}
           <div 
-            className="overflow-visible hide-scrollbar relative flex-1"
+            className="overflow-auto hide-scrollbar relative flex-1" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'auto'
