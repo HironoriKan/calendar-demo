@@ -480,124 +480,136 @@ const CalendarTextGenerator = () => {
   const renderCalendarPopup = () => {
     if (!showCalendarPopup) return null;
     
-    const year = popupMonth.getFullYear();
-    const month = popupMonth.getMonth();
-    const daysInMonth = getDaysInMonth(year, month);
-    const firstDay = getFirstDayOfMonth(year, month);
+    // 月の最初の日を取得
+    const firstDayOfMonth = new Date(popupMonth.getFullYear(), popupMonth.getMonth(), 1);
     
-    // 日本語の曜日（日曜始まり）
-    const jpWeekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    // 月の最後の日を取得
+    const lastDayOfMonth = new Date(popupMonth.getFullYear(), popupMonth.getMonth() + 1, 0);
     
-    // カレンダーの日付配列を作成
-    const calendarDays = [];
+    // 月の最初の日の曜日を取得（0: 日曜日, 1: 月曜日, ...）
+    let firstDayOfWeek = firstDayOfMonth.getDay();
     
-    // 前月の日を埋める
-    const prevMonthDays = firstDay === 0 ? 6 : firstDay - 1;
-    const prevMonth = month === 0 ? 11 : month - 1;
-    const prevMonthYear = month === 0 ? year - 1 : year;
-    const daysInPrevMonth = getDaysInMonth(prevMonthYear, prevMonth);
+    // 月曜日始まりに調整（日曜日は6、月曜日は0、火曜日は1...）
+    firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
     
-    for (let i = 0; i < prevMonthDays; i++) {
-      calendarDays.push({
-        day: daysInPrevMonth - prevMonthDays + i + 1,
-        month: prevMonth,
-        year: prevMonthYear,
-        isCurrentMonth: false
-      });
-    }
+    // 月の日数を取得
+    const daysInMonth = lastDayOfMonth.getDate();
     
-    // 当月の日を埋める
-    for (let i = 1; i <= daysInMonth; i++) {
-      calendarDays.push({
-        day: i,
-        month: month,
-        year: year,
-        isCurrentMonth: true
-      });
-    }
+    // 前月の最後の日を取得
+    const lastDayOfPrevMonth = new Date(popupMonth.getFullYear(), popupMonth.getMonth(), 0);
+    const daysInPrevMonth = lastDayOfPrevMonth.getDate();
     
-    // 翌月の日を埋める
-    const nextDays = 42 - calendarDays.length; // 6週間分（42日）表示
-    const nextMonth = month === 11 ? 0 : month + 1;
-    const nextMonthYear = month === 11 ? year + 1 : year;
+    // カレンダーの行数を計算
+    const rows = Math.ceil((firstDayOfWeek + daysInMonth) / 7);
     
-    for (let i = 1; i <= nextDays; i++) {
-      calendarDays.push({
-        day: i,
-        month: nextMonth,
-        year: nextMonthYear,
-        isCurrentMonth: false
-      });
-    }
+    // 曜日の配列（月曜日始まり）
+    const weekdaysForPopup = ['月', '火', '水', '木', '金', '土', '日'];
     
     return (
-      <div ref={popupRef} className="absolute top-16 left-0 z-50 bg-white shadow-lg rounded-lg p-2 w-64">
+      <div 
+        ref={popupRef}
+        className="absolute top-10 left-0 bg-white shadow-lg rounded-lg z-50 p-2"
+        style={{ width: '300px' }}
+      >
         <div className="flex justify-between items-center mb-2">
           <button 
-            onClick={() => changePopupMonth(-1)}
-            className="p-1 text-gray-600"
+            onClick={() => {
+              const newMonth = new Date(popupMonth);
+              newMonth.setMonth(popupMonth.getMonth() - 1);
+              setPopupMonth(newMonth);
+            }}
+            className="p-1"
           >
             &lt;
           </button>
           <div className="font-bold">
-            {year}年{month + 1}月
+            {popupMonth.getFullYear()}年{popupMonth.getMonth() + 1}月
           </div>
           <button 
-            onClick={() => changePopupMonth(1)}
-            className="p-1 text-gray-600"
+            onClick={() => {
+              const newMonth = new Date(popupMonth);
+              newMonth.setMonth(popupMonth.getMonth() + 1);
+              setPopupMonth(newMonth);
+            }}
+            className="p-1"
           >
             &gt;
           </button>
-          <button 
-            onClick={() => setShowCalendarPopup(false)}
-            className="p-1 text-gray-600"
-          >
-            ×
-          </button>
         </div>
         
-        <div className="grid grid-cols-7 gap-1">
-          {jpWeekdays.map((weekday, index) => (
-            <div 
-              key={`weekday-${index}`} 
-              className={`text-center text-xs py-1 ${index === 0 ? 'text-red-500' : ''}`}
-            >
-              {weekday}
-            </div>
-          ))}
-          
-          {calendarDays.map((dateObj, index) => {
-            const dateValue = new Date(dateObj.year, dateObj.month, dateObj.day);
-            const isToday = 
-              dateObj.day === today.getDate() && 
-              dateObj.month === today.getMonth() && 
-              dateObj.year === today.getFullYear();
-            
-            const isSelected = 
-              weekDates.some(date => 
-                date && 
-                date.getDate() === dateObj.day && 
-                date.getMonth() === dateObj.month && 
-                date.getFullYear() === dateObj.year
-              );
-            
-            return (
-              <div 
-                key={`day-${index}`}
-                onClick={() => selectDate(dateValue)}
-                className={`
-                  text-center cursor-pointer w-8 h-8 flex items-center justify-center mx-auto
-                  ${!dateObj.isCurrentMonth ? 'text-gray-400' : ''}
-                  ${isToday ? 'bg-red-400 text-white rounded-full' : ''}
-                  ${isSelected && !isToday ? 'bg-red-100 rounded-full' : ''}
-                  hover:bg-gray-200 hover:rounded-full
-                `}
-              >
-                {dateObj.day}
-              </div>
-            );
-          })}
-        </div>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              {weekdaysForPopup.map((day, index) => (
+                <th key={index} className="text-center text-xs p-1">
+                  {day}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rows }).map((_, rowIndex) => (
+              <tr key={rowIndex}>
+                {Array.from({ length: 7 }).map((_, colIndex) => {
+                  const dayNumber = rowIndex * 7 + colIndex - firstDayOfWeek + 1;
+                  const isCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+                  
+                  // 前月の日付
+                  const prevMonthDay = daysInPrevMonth - firstDayOfWeek + colIndex + 1;
+                  
+                  // 翌月の日付
+                  const nextMonthDay = dayNumber - daysInMonth;
+                  
+                  // 表示する日付
+                  const displayDay = isCurrentMonth 
+                    ? dayNumber 
+                    : (dayNumber <= 0 ? prevMonthDay : nextMonthDay);
+                  
+                  // 日付オブジェクトを作成
+                  let dateObj;
+                  if (isCurrentMonth) {
+                    dateObj = new Date(popupMonth.getFullYear(), popupMonth.getMonth(), dayNumber);
+                  } else if (dayNumber <= 0) {
+                    dateObj = new Date(popupMonth.getFullYear(), popupMonth.getMonth() - 1, prevMonthDay);
+                  } else {
+                    dateObj = new Date(popupMonth.getFullYear(), popupMonth.getMonth() + 1, nextMonthDay);
+                  }
+                  
+                  // 今日かどうか
+                  const isToday = dateObj.getDate() === today.getDate() && 
+                                  dateObj.getMonth() === today.getMonth() && 
+                                  dateObj.getFullYear() === today.getFullYear();
+                  
+                  // 選択中の週に含まれるかどうか
+                  const isInSelectedWeek = weekDates.some(date => 
+                    date.getDate() === dateObj.getDate() && 
+                    date.getMonth() === dateObj.getMonth() && 
+                    date.getFullYear() === dateObj.getFullYear()
+                  );
+                  
+                  return (
+                    <td 
+                      key={colIndex} 
+                      className={`text-center p-1 cursor-pointer ${
+                        isCurrentMonth ? '' : 'text-gray-400'
+                      } ${
+                        isToday ? 'bg-red-400 text-white rounded-full' : ''
+                      } ${
+                        isInSelectedWeek ? 'bg-red-100 rounded' : ''
+                      }`}
+                      onClick={() => {
+                        setCurrentDate(dateObj);
+                        setShowCalendarPopup(false);
+                      }}
+                    >
+                      {displayDay}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   };
