@@ -1,5 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// ビューポートの高さを取得するためのカスタムフック
+const useViewportHeight = () => {
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    // モバイルデバイスでのアドレスバーの表示/非表示に対応
+    window.addEventListener('orientationchange', () => {
+      setTimeout(handleResize, 100);
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
+  return viewportHeight;
+};
+
 const CalendarTextGenerator = () => {
   // 曜日の配列
   const weekdays = ['月', '火', '水', '木', '金', '土', '日'];
@@ -37,6 +62,25 @@ const CalendarTextGenerator = () => {
   
   // 現在時刻の位置を計算するための状態
   const [currentTimePosition, setCurrentTimePosition] = useState(0);
+  
+  // ビューポートの高さを取得
+  const viewportHeight = useViewportHeight();
+  
+  // カレンダーグリッドの高さを計算
+  const calculateGridHeight = () => {
+    // ヘッダー、ナビゲーション、日付ヘッダー、テキストエリア、フッターの高さを引く
+    const headerHeight = 60; // ヘッダー
+    const navHeight = 50;    // カレンダーナビゲーション
+    const dateHeaderHeight = 80; // 日付ヘッダー
+    const textAreaHeight = 150; // テキストエリア
+    const footerHeight = 100;  // フッター
+    
+    // 合計の固定高さ
+    const fixedHeights = headerHeight + navHeight + dateHeaderHeight + textAreaHeight + footerHeight;
+    
+    // 残りのスペースをグリッドに割り当て（最小値は200px）
+    return Math.max(viewportHeight - fixedHeights, 200);
+  };
   
   // 週の開始日を計算
   useEffect(() => {
@@ -524,7 +568,7 @@ const CalendarTextGenerator = () => {
   }, []);
   
   return (
-    <div className="flex flex-col bg-gray-200 w-full" style={{width: '400px', height: '850px'}} onTouchMove={handleTouchMove}>
+    <div className="flex flex-col bg-gray-200 w-full h-screen" onTouchMove={handleTouchMove}>
       {/* ヘッダー */}
       <div className="bg-white p-2 flex justify-between items-center shadow-sm">
         <div className="flex items-center">
@@ -617,7 +661,7 @@ const CalendarTextGenerator = () => {
         </table>
         
         {/* スクロール可能な本体部分 */}
-        <div className="overflow-auto relative" style={{ height: '500px' }}>
+        <div className="overflow-auto relative" style={{ height: `${calculateGridHeight()}px` }}>
           {/* 現在時刻の線 */}
           {currentTimePosition >= 0 && (
             <>
