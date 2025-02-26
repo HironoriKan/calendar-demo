@@ -75,7 +75,7 @@ const CalendarTextGenerator = () => {
     const navHeight = 50;    // カレンダーナビゲーション
     const dateHeaderHeight = 80; // 日付ヘッダー
     const textAreaHeight = 75; // テキストエリア
-    const footerHeight = 80;  // フッター（100から80に変更）
+    const footerHeight = 80;  // フッター
     
     // 合計の固定高さ
     const fixedHeights = headerHeight + navHeight + dateHeaderHeight + textAreaHeight + footerHeight;
@@ -674,7 +674,7 @@ const CalendarTextGenerator = () => {
       </div>
       
       {/* カレンダーグリッド - ヘッダー固定、本体スクロール */}
-      <div className="bg-white p-0 mb-0 flex-1 flex flex-col">
+      <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden">
         {/* 固定ヘッダー部分 */}
         <table className="w-full border-collapse table-fixed" style={{ margin: '8px 0 4px 0' }}>
           <thead>
@@ -773,9 +773,9 @@ const CalendarTextGenerator = () => {
       </div>
       
       {/* 下部固定エリア */}
-      <div className="bg-white mt-auto border-t border-gray-200">
+      <div className="bg-white border-t border-gray-200">
         {/* 選択した時間テキスト表示 */}
-        <div className="bg-white mt-0" style={{ height: '75px' }}>
+        <div className="bg-white" style={{ height: '75px' }}>
           <div 
             className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
             contentEditable
