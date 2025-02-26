@@ -72,8 +72,8 @@ const CalendarTextGenerator = () => {
     const headerHeight = 60; // ヘッダー
     const navHeight = 50;    // カレンダーナビゲーション
     const dateHeaderHeight = 80; // 日付ヘッダー
-    const textAreaHeight = 75; // テキストエリア（150pxから75pxに変更）
-    const footerHeight = 100;  // フッター
+    const textAreaHeight = 75; // テキストエリア
+    const footerHeight = 80;  // フッター（100から80に変更）
     
     // 合計の固定高さ
     const fixedHeights = headerHeight + navHeight + dateHeaderHeight + textAreaHeight + footerHeight;
@@ -568,7 +568,7 @@ const CalendarTextGenerator = () => {
   }, []);
   
   return (
-    <div className="flex flex-col bg-gray-200 w-full h-screen" onTouchMove={handleTouchMove}>
+    <div className="flex flex-col bg-white w-full h-screen" onTouchMove={handleTouchMove}>
       {/* ヘッダー */}
       <div className="bg-white p-2 flex justify-between items-center shadow-sm">
         <div className="flex items-center">
