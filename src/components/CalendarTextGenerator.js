@@ -48,6 +48,8 @@ const CalendarTextGenerator = () => {
   // ドラッグ選択のための状態
   const [isDragging, setIsDragging] = useState(false);
   const [dragOperation, setDragOperation] = useState(null); // true: 選択, false: 解除
+  const [longPressTimer, setLongPressTimer] = useState(null);
+  const [isLongPress, setIsLongPress] = useState(false);
   
   // ブロック状態を日付ベースで保持するステート
   const [blockedDates, setBlockedDates] = useState(new Map());
@@ -103,26 +105,9 @@ const CalendarTextGenerator = () => {
     setWeekDates(dates);
   }, [currentDate]);
   
-  // 初期ブロックの設定（水曜日の特定時間帯）
+  // 初期ブロックの設定（水曜日の特定時間帯）- この関数は空にする
   useEffect(() => {
-    // 初期ブロックの設定は一度だけ行う
-    if (blockedDates.size === 0 && weekDates.length > 0) {
-      const newBlockedDates = new Map();
-      
-      // 現在の週の水曜日を取得
-      const wednesday = weekDates.find((date, index) => index === 2);
-      
-      if (wednesday) {
-        // 10:00から14:00までをブロック
-        for (let timeIndex = 2; timeIndex <= 6; timeIndex++) {
-          const date = new Date(wednesday);
-          date.setHours(timeIndex + 8, 0, 0, 0);
-          newBlockedDates.set(date.toISOString(), true);
-        }
-        
-        setBlockedDates(newBlockedDates);
-      }
-    }
+    // ブロック機能を無効化するため、何もしない
   }, [weekDates, blockedDates.size]);
   
   // 前の週へ
@@ -153,30 +138,51 @@ const CalendarTextGenerator = () => {
   
   // 日付と時間からブロック状態を確認する関数
   const isDateTimeBlocked = (date, timeIndex) => {
-    if (!date) return false;
-    
-    const key = getDateTimeKey(date, timeIndex);
-    return blockedDates.has(key);
+    // ブロック機能を無効化して常にfalseを返す
+    return false;
   };
   
-  // セルのマウスダウン(ドラッグ開始)処理
-  const handleCellMouseDown = (dayIndex, timeIndex) => {
+  // セルのタップ処理（シンプルな選択/解除）
+  const handleCellClick = (dayIndex, timeIndex) => {
     const date = weekDates[dayIndex];
     if (!date) return;
 
     const key = getDateTimeKey(date, timeIndex);
     const newSelectedDates = new Map(selectedDates);
-    const newValue = !selectedDates.has(key);
     
-    if (newValue) {
-      newSelectedDates.set(key, true);
-    } else {
+    if (selectedDates.has(key)) {
       newSelectedDates.delete(key);
+    } else {
+      newSelectedDates.set(key, true);
     }
     
     setSelectedDates(newSelectedDates);
-    setIsDragging(true);
-    setDragOperation(newValue);
+  };
+  
+  // セルの長押し開始処理
+  const handleCellMouseDown = (dayIndex, timeIndex) => {
+    // 長押しタイマーを設定（500ms）
+    const timer = setTimeout(() => {
+      const date = weekDates[dayIndex];
+      if (!date) return;
+
+      const key = getDateTimeKey(date, timeIndex);
+      const newSelectedDates = new Map(selectedDates);
+      const newValue = !selectedDates.has(key);
+      
+      if (newValue) {
+        newSelectedDates.set(key, true);
+      } else {
+        newSelectedDates.delete(key);
+      }
+      
+      setSelectedDates(newSelectedDates);
+      setIsDragging(true);
+      setDragOperation(newValue);
+      setIsLongPress(true);
+    }, 500);
+    
+    setLongPressTimer(timer);
   };
   
   // セルのマウスエンター(ドラッグ中)処理
@@ -198,10 +204,20 @@ const CalendarTextGenerator = () => {
     }
   };
   
-  // マウスアップ(ドラッグ終了)処理
+  // マウスアップ/タッチエンド処理
   const handleMouseUp = () => {
-    setIsDragging(false);
-    setDragOperation(null);
+    // タイマーをクリア
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    
+    // 長押しでなければクリックとして処理
+    if (isDragging && isLongPress) {
+      setIsDragging(false);
+      setDragOperation(null);
+      setIsLongPress(false);
+    }
   };
   
   // タッチ操作のためのイベントハンドラー
@@ -210,8 +226,11 @@ const CalendarTextGenerator = () => {
   };
   
   const handleTouchMove = (e) => {
+    // 長押し状態でなければスクロールを許可
+    if (!isLongPress) return;
+    
     if (isDragging) {
-      e.preventDefault(); // スクロールを防止
+      e.preventDefault(); // 長押しドラッグ中のみスクロールを防止
       
       const touch = e.touches[0];
       const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -699,26 +718,25 @@ const CalendarTextGenerator = () => {
                   <td className="w-[50px] p-0 text-xs text-gray-500 text-center align-middle">{time}</td>
                   {weekdays.map((_, dayIndex) => {
                     const date = weekDates[dayIndex];
-                    const isBlocked = isDateTimeBlocked(date, timeIndex);
+                    // ブロック状態のチェックを削除（常にfalse）
+                    const isBlocked = false;
                     
                     return (
                       <td 
                         key={dayIndex} 
-                        className={`relative p-0 border-l-[8px] border-r-[8px] border-white select-none
-                          ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                        onMouseDown={isBlocked ? undefined : () => handleCellMouseDown(dayIndex, timeIndex)}
-                        onMouseEnter={isBlocked ? undefined : () => handleCellMouseEnter(dayIndex, timeIndex)}
-                        onTouchStart={isBlocked ? undefined : () => handleTouchStart(dayIndex, timeIndex)}
+                        className={`relative p-0 border-l-[8px] border-r-[8px] border-white select-none cursor-pointer`}
+                        onClick={() => !isLongPress && handleCellClick(dayIndex, timeIndex)}
+                        onMouseDown={() => handleCellMouseDown(dayIndex, timeIndex)}
+                        onMouseEnter={() => isDragging && handleCellMouseEnter(dayIndex, timeIndex)}
+                        onTouchStart={() => handleTouchStart(dayIndex, timeIndex)}
                         data-day-index={dayIndex}
                         data-time-index={timeIndex}
                       >
                         <div className="flex justify-center">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            isBlocked ? 'bg-gray-300' : (
-                              getSelectedSlots()[dayIndex][timeIndex] ? 'bg-red-300' : 'bg-red-100'
-                            )
+                            getSelectedSlots()[dayIndex][timeIndex] ? 'bg-red-300' : 'bg-red-100'
                           }`}>
-                            {isBlocked && <div className="text-xs text-center">block</div>}
+                            {/* ブロック表示を削除 */}
                           </div>
                         </div>
                       </td>
