@@ -698,7 +698,8 @@ const CalendarTextGenerator = () => {
           position: 'relative',
           maxWidth: '400px',
           width: '100%',
-          overflow: isKeyboardVisible ? 'visible' : 'auto'
+          overflow: 'auto',
+          overscrollBehavior: 'auto'
         }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
