@@ -144,6 +144,9 @@ const CalendarTextGenerator = () => {
   
   // セルのタップ処理（シンプルな選択/解除）
   const handleCellClick = (dayIndex, timeIndex) => {
+    // 長押し中は処理しない
+    if (isLongPress) return;
+    
     const date = weekDates[dayIndex];
     if (!date) return;
 
@@ -157,6 +160,11 @@ const CalendarTextGenerator = () => {
     }
     
     setSelectedDates(newSelectedDates);
+    
+    // 選択後にテキストを生成
+    setTimeout(() => {
+      generateText();
+    }, 0);
   };
   
   // セルの長押し開始処理
@@ -180,6 +188,9 @@ const CalendarTextGenerator = () => {
       setIsDragging(true);
       setDragOperation(newValue);
       setIsLongPress(true);
+      
+      // 選択後にテキストを生成
+      generateText();
     }, 500);
     
     setLongPressTimer(timer);
@@ -212,11 +223,18 @@ const CalendarTextGenerator = () => {
       setLongPressTimer(null);
     }
     
-    // 長押しでなければクリックとして処理
-    if (isDragging && isLongPress) {
+    // ドラッグ状態をリセット
+    if (isDragging) {
       setIsDragging(false);
       setDragOperation(null);
-      setIsLongPress(false);
+      
+      // 長押し状態をリセット
+      setTimeout(() => {
+        setIsLongPress(false);
+      }, 50); // 少し遅延させてクリックイベントとの競合を防ぐ
+      
+      // 選択後にテキストを生成
+      generateText();
     }
   };
   
@@ -730,7 +748,7 @@ const CalendarTextGenerator = () => {
                       <td 
                         key={dayIndex} 
                         className={`relative p-0 border-l-[8px] border-r-[8px] border-white select-none cursor-pointer`}
-                        onClick={() => !isLongPress && handleCellClick(dayIndex, timeIndex)}
+                        onClick={() => handleCellClick(dayIndex, timeIndex)}
                         onMouseDown={() => handleCellMouseDown(dayIndex, timeIndex)}
                         onMouseEnter={() => isDragging && handleCellMouseEnter(dayIndex, timeIndex)}
                         onTouchStart={() => handleTouchStart(dayIndex, timeIndex)}
