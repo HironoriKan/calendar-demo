@@ -653,7 +653,7 @@ const CalendarTextGenerator = () => {
             <div className="text-lg font-medium flex items-center">
               {/* 画像として埋め込み */}
               <img 
-                src="/makeme-logo.png" 
+                src="/makeme-logo.PNG" 
                 alt="MakeMeロゴ" 
                 className="h-10"
               />
