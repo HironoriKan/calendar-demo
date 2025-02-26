@@ -773,9 +773,9 @@ const CalendarTextGenerator = () => {
       </div>
       
       {/* 下部固定エリア */}
-      <div className="bg-white mt-auto">
+      <div className="bg-white mt-auto border-t border-gray-200">
         {/* 選択した時間テキスト表示 */}
-        <div className="bg-white border-t border-gray-200 mt-0" style={{ height: '75px' }}>
+        <div className="bg-white mt-0" style={{ height: '75px' }}>
           <div 
             className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
             contentEditable
@@ -795,7 +795,7 @@ const CalendarTextGenerator = () => {
         </div>
         
         {/* フッターボタン */}
-        <div className="bg-white p-1 flex justify-end items-center">
+        <div className="bg-white p-1 flex justify-end items-center border-t border-gray-200">
           <div className="flex space-x-3">
             <button 
               onClick={resetSelection}
