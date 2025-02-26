@@ -698,7 +698,7 @@ const CalendarTextGenerator = () => {
           position: 'relative',
           maxWidth: '400px',
           width: '100%',
-          overflow: isKeyboardVisible ? 'visible' : 'hidden'
+          overflow: isKeyboardVisible ? 'visible' : 'auto'
         }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -776,7 +776,7 @@ const CalendarTextGenerator = () => {
           
           {/* スクロール可能な本体部分 - 計算された高さを適用 */}
           <div 
-            className="overflow-auto relative flex-1" 
+            className="overflow-auto hide-scrollbar relative flex-1" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'auto'
