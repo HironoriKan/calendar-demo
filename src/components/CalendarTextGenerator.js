@@ -649,7 +649,7 @@ const CalendarTextGenerator = () => {
                 <path d="M1010 230V70H1056V190H1136V230H1010Z" fill="#666666"/>
                 
                 {/* メイクミークラウドテキスト */}
-                <text x="500" y="270" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" fill="#666666">メイクミークラウド</text>
+                <text x="500" y="270" font-family="'Noto Sans JP', sans-serif" font-size="36" text-anchor="middle" fill="#666666">メイクミークラウド</text>
               </svg>
               <span className="ml-2 font-bold text-gray-700">カレンダー日程調整</span>
             </div>
