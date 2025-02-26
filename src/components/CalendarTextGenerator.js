@@ -4,17 +4,25 @@ import React, { useState, useEffect, useRef } from 'react';
 const useViewportHeight = () => {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
       // モバイルブラウザでより正確な高さを取得
       const vh = window.innerHeight;
-      setViewportHeight(vh);
+      const previousHeight = viewportHeight;
       
-      // キーボードが表示されているかどうかを判定
-      // 通常、キーボードが表示されると画面高さが大幅に減少する
-      const heightReduction = window.innerHeight < window.outerHeight * 0.75;
-      setIsKeyboardVisible(heightReduction);
+      // 高さが大幅に減少した場合はキーボードが表示されたと判断
+      if (previousHeight - vh > 100) {
+        setIsKeyboardVisible(true);
+        setKeyboardHeight(previousHeight - vh);
+      } else if (vh - previousHeight > 100) {
+        // 高さが大幅に増加した場合はキーボードが非表示になったと判断
+        setIsKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }
+      
+      setViewportHeight(vh);
       
       // CSS変数として設定（1vhの実際の値をピクセルで設定）
       document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
@@ -40,9 +48,9 @@ const useViewportHeight = () => {
       window.removeEventListener('orientationchange', handleResize);
       window.removeEventListener('scroll', handleResize);
     };
-  }, []);
+  }, [viewportHeight]);
 
-  return { viewportHeight, isKeyboardVisible };
+  return { viewportHeight, isKeyboardVisible, keyboardHeight };
 };
 
 const CalendarTextGenerator = () => {
@@ -86,10 +94,11 @@ const CalendarTextGenerator = () => {
   const [currentTimePosition, setCurrentTimePosition] = useState(0);
   
   // ビューポートの高さとキーボード表示状態を取得
-  const { viewportHeight, isKeyboardVisible } = useViewportHeight();
+  const { viewportHeight, isKeyboardVisible, keyboardHeight } = useViewportHeight();
   
   // テキストエリアがフォーカスされているかどうか
   const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
+  const textAreaRef = useRef(null);
   
   // カレンダーグリッドの高さを計算
   const calculateGridHeight = () => {
@@ -628,20 +637,29 @@ const CalendarTextGenerator = () => {
     return () => clearInterval(interval);
   }, []);
   
+  // テキストエリアがフォーカスされたときの処理
+  const handleTextAreaFocus = () => {
+    setIsTextAreaFocused(true);
+    
+    // スクロール位置を調整してテキストエリアを表示
+    if (textAreaRef.current) {
+      setTimeout(() => {
+        textAreaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  };
+  
   return (
     <div className="flex justify-center bg-gray-50 w-full" style={{ minHeight: '100vh', minHeight: 'calc(var(--vh, 1vh) * 100)', overscrollBehavior: 'auto' }}>
       <div 
         className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
         style={{ 
-          height: '100vh', 
-          height: 'calc(var(--vh, 1vh) * 100)',
-          // キーボードが表示されている場合は固定高さを使用しない
-          position: isKeyboardVisible ? 'relative' : 'fixed',
-          top: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
+          height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '100vh', 
+          height: isKeyboardVisible ? `calc(var(--vh, 1vh) * 100 - ${keyboardHeight}px)` : 'calc(var(--vh, 1vh) * 100)',
+          position: 'relative',
           maxWidth: '400px',
-          width: '100%'
+          width: '100%',
+          overflow: 'hidden'
         }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -800,14 +818,16 @@ const CalendarTextGenerator = () => {
           {/* 選択した時間テキスト表示 */}
           <div className="bg-white" style={{ height: '75px' }}>
             <div 
+              ref={textAreaRef}
               className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
               contentEditable
               suppressContentEditableWarning={true}
-              onFocus={() => setIsTextAreaFocused(true)}
+              onFocus={handleTextAreaFocus}
               onBlur={(e) => {
                 setIsTextAreaFocused(false);
                 setGeneratedText(e.currentTarget.textContent);
               }}
+              style={{ fontSize: '16px' }} // 16px以上のフォントサイズでiOSのズームを防止
             >
               {generatedText ? (
                 generatedText.split('\n').map((line, index) => (
