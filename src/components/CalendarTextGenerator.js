@@ -688,21 +688,17 @@ const CalendarTextGenerator = () => {
       minHeight: '100vh', 
       minHeight: 'calc(var(--vh, 1vh) * 100)', 
       overscrollBehavior: 'auto',
-      position: 'relative',
-      overflow: 'auto' // 全体のスクロールを許可
+      position: 'relative'
     }}>
       <div 
         className="flex flex-col bg-white w-full max-w-[400px] shadow-md" 
         style={{ 
-          // 固定高さを削除し、自動的に高さを調整
-          height: 'auto',
-          minHeight: isKeyboardVisible ? 'auto' : '100vh', 
-          minHeight: isKeyboardVisible ? 'auto' : 'calc(var(--vh, 1vh) * 100)',
+          height: isKeyboardVisible ? 'auto' : '100vh', 
+          height: isKeyboardVisible ? 'auto' : 'calc(var(--vh, 1vh) * 100)',
           position: 'relative',
           maxWidth: '400px',
           width: '100%',
-          overflow: 'visible', // 内容がはみ出ても表示
-          overscrollBehavior: 'auto'
+          overflow: isKeyboardVisible ? 'visible' : 'hidden'
         }}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -746,9 +742,9 @@ const CalendarTextGenerator = () => {
           <div></div> {/* 右側のスペース確保用 */}
         </div>
         
-        {/* カレンダーグリッド - 固定高さを削除 */}
-        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden" style={{
-          // maxHeightを削除して自然な高さに
+        {/* カレンダーグリッド - キーボード表示時は縮小 */}
+        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden min-h-0" style={{
+          maxHeight: isKeyboardVisible ? '40vh' : 'none',
           transition: 'max-height 0.3s ease'
         }}>
           {/* 固定ヘッダー部分 */}
@@ -780,7 +776,7 @@ const CalendarTextGenerator = () => {
           
           {/* スクロール可能な本体部分 - 計算された高さを適用 */}
           <div 
-            className="overflow-auto hide-scrollbar relative flex-1" 
+            className="overflow-auto relative flex-1" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'auto'
