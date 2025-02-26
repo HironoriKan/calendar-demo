@@ -611,7 +611,7 @@ const CalendarTextGenerator = () => {
       onTouchEnd={handleTouchEnd}
       onMouseUp={handleMouseUp}
     >
-      {/* ヘッダー */}
+      {/* ヘッダー - 固定高さ */}
       <div className="bg-white p-2 flex justify-between items-center shadow-sm">
         <div className="flex items-center">
           <div className="text-lg font-medium text-gray-500 flex items-center">
@@ -645,7 +645,7 @@ const CalendarTextGenerator = () => {
         </div>
       </div>
       
-      {/* カレンダーナビゲーション */}
+      {/* カレンダーナビゲーション - 固定高さ */}
       <div className="bg-white flex justify-between items-center p-2 border-b border-gray-200">
         <div className="flex items-center relative">
           <button 
@@ -673,146 +673,149 @@ const CalendarTextGenerator = () => {
         <div></div> {/* 右側のスペース確保用 */}
       </div>
       
-      {/* カレンダーグリッド - ヘッダー固定、本体スクロール */}
-      <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden">
-        {/* 固定ヘッダー部分 */}
-        <table className="w-full border-collapse table-fixed" style={{ margin: '8px 0 4px 0' }}>
-          <thead>
-            <tr className="border-b-[8px] border-white">
-              <th className="w-[50px] p-0"></th>
-              {weekdays.map((weekday, index) => {
-                const date = weekDates[index];
-                const isToday = date && 
-                  date.getDate() === today.getDate() && 
-                  date.getMonth() === today.getMonth() && 
-                  date.getFullYear() === today.getFullYear();
-                
-                return (
-                  <th key={index} className="p-0 text-center border-l-[8px] border-r-[8px] border-white">
-                    <div className="text-xs text-gray-500">{weekday}</div>
-                    <div style={{ marginTop: '4px' }} className="flex justify-center">
-                      <div className={`text-base font-bold w-10 h-10 flex items-center justify-center ${isToday ? 'bg-red-400 text-white rounded-full' : ''}`}>
-                        {date ? date.getDate() : ''}
-                      </div>
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-        </table>
-        
-        {/* スクロール可能な本体部分 - flex-1で残りのスペースを埋める */}
-        <div className="overflow-auto relative flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-          {/* 現在時刻の線 */}
-          {currentTimePosition >= 0 && (
-            <>
-              {/* 矢印の三角形 */}
-              <div 
-                className="absolute z-10 pointer-events-none" 
-                style={{ 
-                  top: `${currentTimePosition - 5}px`, 
-                  left: '42px',
-                  width: '0',
-                  height: '0',
-                  borderTop: '5px solid transparent',
-                  borderBottom: '5px solid transparent',
-                  borderLeft: '8px solid rgba(255, 0, 0, 0.6)'
-                }}
-              />
-              {/* 水平線 */}
-              <div 
-                className="absolute z-10 pointer-events-none" 
-                style={{ 
-                  top: `${currentTimePosition}px`, 
-                  height: '0.5px', 
-                  backgroundColor: 'rgba(255, 0, 0, 0.6)',
-                  left: '50px',
-                  right: '0'
-                }}
-              />
-            </>
-          )}
-          
-          <table className="w-full border-collapse table-fixed">
-            <tbody>
-              {timeSlots.map((time, timeIndex) => (
-                <tr key={timeIndex} className="border-b-[8px] border-white">
-                  <td className="w-[50px] p-0 text-xs text-gray-500 text-center align-middle">{time}</td>
-                  {weekdays.map((_, dayIndex) => {
-                    const date = weekDates[dayIndex];
-                    // ブロック状態のチェックを削除（常にfalse）
-                    const isBlocked = false;
-                    
-                    return (
-                      <td 
-                        key={dayIndex} 
-                        className={`relative p-0 border-l-[8px] border-r-[8px] border-white select-none cursor-pointer`}
-                        onClick={() => handleCellClick(dayIndex, timeIndex)}
-                        onMouseDown={() => handleCellMouseDown(dayIndex, timeIndex)}
-                        onMouseEnter={() => isDragging && handleCellMouseEnter(dayIndex, timeIndex)}
-                        onTouchStart={() => handleTouchStart(dayIndex, timeIndex)}
-                        data-day-index={dayIndex}
-                        data-time-index={timeIndex}
-                      >
-                        <div className="flex justify-center">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            getSelectedSlots()[dayIndex][timeIndex] ? 'bg-red-300' : 'bg-red-100'
-                          }`}>
-                            {/* ブロック表示を削除 */}
-                          </div>
+      {/* メインコンテンツ - 残りの高さを埋める */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* カレンダーグリッド - ヘッダー固定、本体スクロール */}
+        <div className="bg-white p-0 mb-0 flex-1 flex flex-col overflow-hidden">
+          {/* 固定ヘッダー部分 */}
+          <table className="w-full border-collapse table-fixed" style={{ margin: '8px 0 4px 0' }}>
+            <thead>
+              <tr className="border-b-[8px] border-white">
+                <th className="w-[50px] p-0"></th>
+                {weekdays.map((weekday, index) => {
+                  const date = weekDates[index];
+                  const isToday = date && 
+                    date.getDate() === today.getDate() && 
+                    date.getMonth() === today.getMonth() && 
+                    date.getFullYear() === today.getFullYear();
+                  
+                  return (
+                    <th key={index} className="p-0 text-center border-l-[8px] border-r-[8px] border-white">
+                      <div className="text-xs text-gray-500">{weekday}</div>
+                      <div style={{ marginTop: '4px' }} className="flex justify-center">
+                        <div className={`text-base font-bold w-10 h-10 flex items-center justify-center ${isToday ? 'bg-red-400 text-white rounded-full' : ''}`}>
+                          {date ? date.getDate() : ''}
                         </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
+                      </div>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
           </table>
-        </div>
-      </div>
-      
-      {/* 下部固定エリア */}
-      <div className="bg-white border-t border-gray-200">
-        {/* 選択した時間テキスト表示 */}
-        <div className="bg-white" style={{ height: '75px' }}>
-          <div 
-            className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
-            contentEditable
-            suppressContentEditableWarning={true}
-            onBlur={(e) => setGeneratedText(e.currentTarget.textContent)}
-          >
-            {generatedText ? (
-              generatedText.split('\n').map((line, index) => (
-                <div key={index}>{line}</div>
-              ))
-            ) : (
-              <div className="text-gray-400">
-                カレンダーで選択した日時が、自動で入力されます。
-              </div>
+          
+          {/* スクロール可能な本体部分 - flex-1で残りのスペースを埋める */}
+          <div className="overflow-auto relative flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {/* 現在時刻の線 */}
+            {currentTimePosition >= 0 && (
+              <>
+                {/* 矢印の三角形 */}
+                <div 
+                  className="absolute z-10 pointer-events-none" 
+                  style={{ 
+                    top: `${currentTimePosition - 5}px`, 
+                    left: '42px',
+                    width: '0',
+                    height: '0',
+                    borderTop: '5px solid transparent',
+                    borderBottom: '5px solid transparent',
+                    borderLeft: '8px solid rgba(255, 0, 0, 0.6)'
+                  }}
+                />
+                {/* 水平線 */}
+                <div 
+                  className="absolute z-10 pointer-events-none" 
+                  style={{ 
+                    top: `${currentTimePosition}px`, 
+                    height: '0.5px', 
+                    backgroundColor: 'rgba(255, 0, 0, 0.6)',
+                    left: '50px',
+                    right: '0'
+                  }}
+                />
+              </>
             )}
+            
+            <table className="w-full border-collapse table-fixed">
+              <tbody>
+                {timeSlots.map((time, timeIndex) => (
+                  <tr key={timeIndex} className="border-b-[8px] border-white">
+                    <td className="w-[50px] p-0 text-xs text-gray-500 text-center align-middle">{time}</td>
+                    {weekdays.map((_, dayIndex) => {
+                      const date = weekDates[dayIndex];
+                      // ブロック状態のチェックを削除（常にfalse）
+                      const isBlocked = false;
+                      
+                      return (
+                        <td 
+                          key={dayIndex} 
+                          className={`relative p-0 border-l-[8px] border-r-[8px] border-white select-none cursor-pointer`}
+                          onClick={() => handleCellClick(dayIndex, timeIndex)}
+                          onMouseDown={() => handleCellMouseDown(dayIndex, timeIndex)}
+                          onMouseEnter={() => isDragging && handleCellMouseEnter(dayIndex, timeIndex)}
+                          onTouchStart={() => handleTouchStart(dayIndex, timeIndex)}
+                          data-day-index={dayIndex}
+                          data-time-index={timeIndex}
+                        >
+                          <div className="flex justify-center">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              getSelectedSlots()[dayIndex][timeIndex] ? 'bg-red-300' : 'bg-red-100'
+                            }`}>
+                              {/* ブロック表示を削除 */}
+                            </div>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
         
-        {/* フッターボタン */}
-        <div className="bg-white p-1 flex justify-end items-center border-t border-gray-200">
-          <div className="flex space-x-3">
-            <button 
-              onClick={resetSelection}
-              className="px-10 bg-gray-300 text-gray-700 rounded-full text-sm h-10 font-bold"
-              style={{ margin: '20px 12px' }}
+        {/* 下部固定エリア - 固定高さ */}
+        <div className="bg-white border-t border-gray-200">
+          {/* 選択した時間テキスト表示 */}
+          <div className="bg-white" style={{ height: '75px' }}>
+            <div 
+              className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
+              contentEditable
+              suppressContentEditableWarning={true}
+              onBlur={(e) => setGeneratedText(e.currentTarget.textContent)}
             >
-              リセット
-            </button>
-            
-            <button 
-              onClick={copyToClipboard}
-              className="px-10 bg-red-400 text-white rounded-full text-sm h-10 font-bold"
-              style={{ margin: '20px 12px' }}
-              disabled={!generatedText}
-            >
-              文字をコピー
-            </button>
+              {generatedText ? (
+                generatedText.split('\n').map((line, index) => (
+                  <div key={index}>{line}</div>
+                ))
+              ) : (
+                <div className="text-gray-400">
+                  カレンダーで選択した日時が、自動で入力されます。
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* フッターボタン */}
+          <div className="bg-white p-1 flex justify-end items-center border-t border-gray-200">
+            <div className="flex space-x-3">
+              <button 
+                onClick={resetSelection}
+                className="px-10 bg-gray-300 text-gray-700 rounded-full text-sm h-10 font-bold"
+                style={{ margin: '20px 12px' }}
+              >
+                リセット
+              </button>
+              
+              <button 
+                onClick={copyToClipboard}
+                className="px-10 bg-red-400 text-white rounded-full text-sm h-10 font-bold"
+                style={{ margin: '20px 12px' }}
+                disabled={!generatedText}
+              >
+                文字をコピー
+              </button>
+            </div>
           </div>
         </div>
       </div>
