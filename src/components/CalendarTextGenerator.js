@@ -72,7 +72,7 @@ const CalendarTextGenerator = () => {
     const headerHeight = 60; // ヘッダー
     const navHeight = 50;    // カレンダーナビゲーション
     const dateHeaderHeight = 80; // 日付ヘッダー
-    const textAreaHeight = 150; // テキストエリア
+    const textAreaHeight = 75; // テキストエリア（150pxから75pxに変更）
     const footerHeight = 100;  // フッター
     
     // 合計の固定高さ
@@ -731,8 +731,8 @@ const CalendarTextGenerator = () => {
         </div>
       </div>
       
-      {/* 選択した時間テキスト表示 - 高さを150pxに固定 */}
-      <div className="bg-white border-t border-gray-200 mt-0" style={{ height: '150px' }}>
+      {/* 選択した時間テキスト表示 - 高さを75pxに変更 */}
+      <div className="bg-white border-t border-gray-200 mt-0" style={{ height: '75px' }}>
         <div 
           className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
           contentEditable
