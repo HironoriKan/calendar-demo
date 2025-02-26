@@ -632,7 +632,7 @@ const CalendarTextGenerator = () => {
       </div>
       
       {/* カレンダーグリッド - ヘッダー固定、本体スクロール */}
-      <div className="bg-white p-0 mb-0">
+      <div className="bg-white p-0 mb-0 flex-1 flex flex-col">
         {/* 固定ヘッダー部分 */}
         <table className="w-full border-collapse table-fixed" style={{ margin: '8px 0 4px 0' }}>
           <thead>
@@ -660,8 +660,8 @@ const CalendarTextGenerator = () => {
           </thead>
         </table>
         
-        {/* スクロール可能な本体部分 */}
-        <div className="overflow-auto relative" style={{ height: `${calculateGridHeight()}px` }}>
+        {/* スクロール可能な本体部分 - flex-1で残りのスペースを埋める */}
+        <div className="overflow-auto relative flex-1">
           {/* 現在時刻の線 */}
           {currentTimePosition >= 0 && (
             <>
@@ -731,45 +731,48 @@ const CalendarTextGenerator = () => {
         </div>
       </div>
       
-      {/* 選択した時間テキスト表示 - 高さを75pxに変更 */}
-      <div className="bg-white border-t border-gray-200 mt-0" style={{ height: '75px' }}>
-        <div 
-          className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
-          contentEditable
-          suppressContentEditableWarning={true}
-          onBlur={(e) => setGeneratedText(e.currentTarget.textContent)}
-        >
-          {generatedText ? (
-            generatedText.split('\n').map((line, index) => (
-              <div key={index}>{line}</div>
-            ))
-          ) : (
-            <div className="text-gray-400">
-              カレンダーで選択した日時が、自動で入力されます。
-            </div>
-          )}
+      {/* 下部固定エリア */}
+      <div className="bg-white mt-auto">
+        {/* 選択した時間テキスト表示 */}
+        <div className="bg-white border-t border-gray-200 mt-0" style={{ height: '75px' }}>
+          <div 
+            className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
+            contentEditable
+            suppressContentEditableWarning={true}
+            onBlur={(e) => setGeneratedText(e.currentTarget.textContent)}
+          >
+            {generatedText ? (
+              generatedText.split('\n').map((line, index) => (
+                <div key={index}>{line}</div>
+              ))
+            ) : (
+              <div className="text-gray-400">
+                カレンダーで選択した日時が、自動で入力されます。
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-      
-      {/* フッターボタン */}
-      <div className="bg-white p-1 flex justify-end items-center">
-        <div className="flex space-x-3">
-          <button 
-            onClick={resetSelection}
-            className="px-10 bg-gray-300 text-gray-700 rounded-full text-sm h-10 font-bold"
-            style={{ margin: '20px 12px' }}
-          >
-            リセット
-          </button>
-          
-          <button 
-            onClick={copyToClipboard}
-            className="px-10 bg-red-400 text-white rounded-full text-sm h-10 font-bold"
-            style={{ margin: '20px 12px' }}
-            disabled={!generatedText}
-          >
-            文字をコピー
-          </button>
+        
+        {/* フッターボタン */}
+        <div className="bg-white p-1 flex justify-end items-center">
+          <div className="flex space-x-3">
+            <button 
+              onClick={resetSelection}
+              className="px-10 bg-gray-300 text-gray-700 rounded-full text-sm h-10 font-bold"
+              style={{ margin: '20px 12px' }}
+            >
+              リセット
+            </button>
+            
+            <button 
+              onClick={copyToClipboard}
+              className="px-10 bg-red-400 text-white rounded-full text-sm h-10 font-bold"
+              style={{ margin: '20px 12px' }}
+              disabled={!generatedText}
+            >
+              文字をコピー
+            </button>
+          </div>
         </div>
       </div>
     </div>
