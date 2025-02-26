@@ -244,7 +244,7 @@ const CalendarTextGenerator = () => {
   };
   
   const handleTouchMove = (e) => {
-    // 長押し状態でなければスクロールを許可
+    // 長押し状態でなければスクロールを許可（ここが重要）
     if (!isLongPress) return;
     
     if (isDragging) {
@@ -703,7 +703,7 @@ const CalendarTextGenerator = () => {
         </table>
         
         {/* スクロール可能な本体部分 - flex-1で残りのスペースを埋める */}
-        <div className="overflow-auto relative flex-1">
+        <div className="overflow-auto relative flex-1" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* 現在時刻の線 */}
           {currentTimePosition >= 0 && (
             <>
