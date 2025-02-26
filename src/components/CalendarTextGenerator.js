@@ -53,6 +53,9 @@ const useViewportHeight = () => {
   return { viewportHeight, isKeyboardVisible, keyboardHeight };
 };
 
+// ロゴのインポート行を削除
+// import makemeLogo from '../assets/makeme-logo.png';
+
 const CalendarTextGenerator = () => {
   // 曜日の配列
   const weekdays = ['月', '火', '水', '木', '金', '土', '日'];
@@ -663,6 +666,11 @@ const CalendarTextGenerator = () => {
     }
   };
   
+  // デバイスがモバイルかどうかを判定する関数
+  const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+  
   return (
     <div className="flex justify-center bg-gray-50 w-full" style={{ 
       minHeight: '100vh', 
@@ -688,13 +696,8 @@ const CalendarTextGenerator = () => {
         <div className="bg-white p-2 flex justify-center items-center shadow-sm">
           <div className="flex items-center">
             <div className="text-lg font-medium flex items-center">
-              {/* 画像として埋め込み */}
-              <img 
-                src="/makeme-logo.PNG" 
-                alt="MakeMeロゴ" 
-                className="h-10"
-              />
-              <span className="ml-2 font-bold text-gray-700">カレンダー日程調整</span>
+              {/* ロゴを削除 */}
+              <span className="font-bold text-gray-700">カレンダー日程調整</span>
             </div>
           </div>
         </div>
@@ -851,10 +854,10 @@ const CalendarTextGenerator = () => {
             <div 
               ref={textAreaRef}
               className="text-sm text-gray-800 h-full p-2 overflow-y-auto"
-              contentEditable
+              contentEditable={!isMobileDevice()} // モバイルデバイスでは編集不可
               suppressContentEditableWarning={true}
-              onFocus={handleTextAreaFocus}
-              onBlur={(e) => {
+              onFocus={!isMobileDevice() ? handleTextAreaFocus : undefined} // モバイルデバイスではフォーカスイベントを無効化
+              onBlur={!isMobileDevice() ? (e) => {
                 setIsTextAreaFocused(false);
                 setGeneratedText(e.currentTarget.textContent);
                 
@@ -865,10 +868,15 @@ const CalendarTextGenerator = () => {
                     behavior: 'smooth'
                   });
                 }, 100);
-              }}
+              } : undefined} // モバイルデバイスではブラーイベントを無効化
               style={{ 
-                fontSize: '16px', // 16px以上のフォントサイズでiOSのズームを防止
-                backgroundColor: isTextAreaFocused ? '#f8f8f8' : 'white' // フォーカス時に背景色を変更
+                fontSize: '16px',
+                backgroundColor: isTextAreaFocused ? '#f8f8f8' : 'white',
+                userSelect: isMobileDevice() ? 'none' : 'text', // モバイルデバイスではテキスト選択を無効化
+                WebkitUserSelect: isMobileDevice() ? 'none' : 'text',
+                MozUserSelect: isMobileDevice() ? 'none' : 'text',
+                msUserSelect: isMobileDevice() ? 'none' : 'text',
+                cursor: isMobileDevice() ? 'default' : 'text' // モバイルデバイスではカーソルをデフォルトに
               }}
             >
               {generatedText ? (
@@ -878,6 +886,7 @@ const CalendarTextGenerator = () => {
               ) : (
                 <div className="text-gray-400">
                   カレンダーで選択した日時が、自動で入力されます。
+                  {isMobileDevice() && <div className="mt-1 text-xs">※モバイル版では編集できません</div>}
                 </div>
               )}
             </div>
