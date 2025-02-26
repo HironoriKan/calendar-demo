@@ -587,7 +587,12 @@ const CalendarTextGenerator = () => {
   }, []);
   
   return (
-    <div className="flex flex-col bg-white w-full h-screen" onTouchMove={handleTouchMove}>
+    <div 
+      className="flex flex-col bg-white w-full h-screen" 
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseUp={handleMouseUp}
+    >
       {/* ヘッダー */}
       <div className="bg-white p-2 flex justify-between items-center shadow-sm">
         <div className="flex items-center">

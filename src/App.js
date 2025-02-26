@@ -3,7 +3,7 @@ import CalendarTextGenerator from './components/CalendarTextGenerator';
 
 function App() {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="App">
       <CalendarTextGenerator />
     </div>
   );
