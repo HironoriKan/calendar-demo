@@ -25,6 +25,16 @@ html, body, #root, .App {
   overscroll-behavior: contain;
 }
 
+/* スクロールバーを非表示にするスタイル */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
