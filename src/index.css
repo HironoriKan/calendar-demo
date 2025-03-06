@@ -4,6 +4,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* その他のカスタムスタイル */
+
 body {
   margin: 0;
   font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
